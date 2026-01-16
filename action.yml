@@ -53,9 +53,9 @@ runs:
         git config user.email "github-actions@github.com"
         if ! git diff --quiet -- uv.lock; then
           git add uv.lock
-          git commit -m "ci: refresh uv.lock"
+          git commit -m "GitHub action to automatically refresh uv.lock(changed)"
           git push origin HEAD:${{ inputs.ref }}
         else
-          echo "uv.lock unchanged"
+          echo "GitHub action - (uv.lock is unchanged)"
         fi
 
