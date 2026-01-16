@@ -1,0 +1,57 @@
+
+name: Update uv.lock
+description: Regenerate uv.lock and push if changed
+author: your-org
+inputs:
+  python-version:
+    description: Python version to use
+    required: false
+    default: '3.10.7'
+  repository:
+    description: Full name of the repo to update (e.g., org/repo)
+    required: true
+  ref:
+    description: Branch or ref to check out and push back to (e.g., PR head ref)
+    required: true
+  workdir:
+    description: Directory containing pyproject.toml (use "." if at repo root)
+    required: false
+    default: '.'
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.repository }}
+        ref: ${{ inputs.ref }}
+        fetch-depth: 0
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - shell: bash
+      working-directory: ${{ inputs.workdir }}
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install "uv==0.8.18"
+
+    - shell: bash
+      working-directory: ${{ inputs.workdir }}
+      run: |
+        uv venv
+        uv sync --upgrade --extra dev --native-tls --link-mode=copy
+
+    - shell: bash
+      working-directory: ${{ inputs.workdir }}
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        if ! git diff --quiet -- uv.lock; then
+          git add uv.lock
+          git commit -m "ci: refresh uv.lock"
+          git push origin HEAD:${{ inputs.ref }}
+        else
+          echo "uv.lock unchanged"
+        fi
+
