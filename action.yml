@@ -1,7 +1,11 @@
+name: 'Update uv.lock'
+description: 'Regenerate uv.lock and push if changed'
+author: 'Abhishek Singh'
 
-name: Update uv.lock
-description: Regenerate uv.lock and push if changed
-author: your-org
+branding:
+  icon: 'git-commit'
+  color: 'blue'
+
 inputs:
   python-version:
     description: Python version to use
